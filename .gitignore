@@ -21,3 +21,6 @@ Thumbs.db
 
 # Editor settings
 .vscode/
+
+# Generated notebook outputs
+repro_outputs/
