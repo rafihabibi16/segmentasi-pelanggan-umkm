@@ -1,0 +1,35 @@
+{
+  "model_name": "K-Means RFM UMKM",
+  "model_version": "1.0",
+  "algorithm": "KMeans",
+  "preprocessing": "StandardScaler",
+  "n_clusters": 4,
+  "random_state": 42,
+  "n_init": 10,
+  "sklearn_version": "1.6.1",
+  "feature_order": [
+    "hari_sejak_transaksi_terakhir",
+    "jumlah_transaksi_6bln",
+    "total_belanja_rp"
+  ],
+  "feature_descriptions": {
+    "hari_sejak_transaksi_terakhir": "Jumlah hari sejak transaksi terakhir",
+    "jumlah_transaksi_6bln": "Jumlah transaksi selama enam bulan",
+    "total_belanja_rp": "Total belanja enam bulan dalam rupiah"
+  },
+  "cluster_names": {
+    "0": "Aktif Berorientasi Promo",
+    "1": "Pelanggan Kurang Aktif",
+    "2": "Pembeli Produk Acara Bernilai Tinggi",
+    "3": "Pelanggan Rutin Bernilai Tinggi"
+  },
+  "training_rows": 7000,
+  "validation_rows": 1500,
+  "test_rows": 1500,
+  "evaluation": {
+    "silhouette_train_sample": 0.5525,
+    "silhouette_validation": 0.5619,
+    "silhouette_test": 0.5497
+  },
+  "notes": "Nama cluster berasal dari profiling training. Penggunaan promo dan kategori favorit bukan fitur input K-Means. Dataset bersifat sintetis."
+}

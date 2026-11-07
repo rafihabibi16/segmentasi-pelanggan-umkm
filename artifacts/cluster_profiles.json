@@ -1,0 +1,51 @@
+
+{
+  "source": "Customer profiling - training set",
+  "jumlah_training": 7000,
+  "clusters": {
+    "0": {
+      "nama": "Aktif Berorientasi Promo",
+      "jumlah_pelanggan": 2688,
+      "persen_pelanggan": 38.40,
+      "recency_mean": 14.77,
+      "frequency_mean": 10.28,
+      "monetary_mean": 420490.36,
+      "promo_mean": 60.47,
+      "kategori_acara_pct": 24.00,
+      "rupiah_per_transaksi": 40904.68
+    },
+    "1": {
+      "nama": "Pelanggan Kurang Aktif",
+      "jumlah_pelanggan": 1912,
+      "persen_pelanggan": 27.31,
+      "recency_mean": 114.12,
+      "frequency_mean": 2.57,
+      "monetary_mean": 106784.00,
+      "promo_mean": 34.64,
+      "kategori_acara_pct": 14.91,
+      "rupiah_per_transaksi": 41506.61
+    },
+    "2": {
+      "nama": "Pembeli Produk Acara Bernilai Tinggi",
+      "jumlah_pelanggan": 655,
+      "persen_pelanggan": 9.36,
+      "recency_mean": 30.40,
+      "frequency_mean": 4.66,
+      "monetary_mean": 1408475.27,
+      "promo_mean": 12.01,
+      "kategori_acara_pct": 86.26,
+      "rupiah_per_transaksi": 302079.67
+    },
+    "3": {
+      "nama": "Pelanggan Rutin Bernilai Tinggi",
+      "jumlah_pelanggan": 1745,
+      "persen_pelanggan": 24.93,
+      "recency_mean": 5.20,
+      "frequency_mean": 30.43,
+      "monetary_mean": 1480719.54,
+      "promo_mean": 19.89,
+      "kategori_acara_pct": 10.77,
+      "rupiah_per_transaksi": 48662.01
+    }
+  }
+}
