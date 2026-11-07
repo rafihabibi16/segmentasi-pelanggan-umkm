@@ -24,13 +24,27 @@ Aplikasi menyediakan dashboard profil segmen, prediksi cluster untuk satu pelang
 
 Dataset bersifat **sintetis** dan merupakan ringkasan perilaku pelanggan selama enam bulan hingga Juni 2026. Data awal terdiri atas **10.150 baris dan 12 kolom**; data akhir setelah pembersihan memuat **10.000 pelanggan unik**. Selisih keseluruhan adalah **150 baris**; angka ini **bukan** jumlah masing-masing jenis kesalahan. Data akhir dibagi menjadi 7.000 baris training (70%), 1.500 validation (15%), dan 1.500 holdout test (15%).
 
-| **Masalah yang ditemukan** | **Jumlah baris** | **Cara menangani** |
-| --- | ---: | --- |
-| Baris berlebih secara keseluruhan setelah audit dan deduplikasi/konsolidasi | **150** (selisih total) | Memeriksa duplikasi baris serta konflik `id_pelanggan`, lalu mempertahankan data pelanggan sesuai aturan pembersihan dalam notebook. |
-| Nilai kosong, terutama pada `umur` dan `rating_rata` | **[Isi hasil audit notebook]** | Memeriksa proporsi dan konteks nilai kosong; penanganan per kolom didokumentasikan dalam notebook. |
-| Format teks/penulisan nominal `total_belanja_rp` tidak seragam | **[Isi hasil audit notebook]** | Membersihkan simbol dan format rupiah lalu mengonversinya ke numerik. |
-| Label kategori tidak konsisten | **[Isi hasil audit notebook]** | Menyeragamkan label kategori sebelum analisis. |
-| Nilai tidak wajar atau ekstrem pada fitur numerik/recency | **[Isi hasil audit notebook]** | Memvalidasi nilai dan meninjau outlier dalam konteks bisnis; tidak menghapus seluruh nilai ekstrem secara otomatis. |
+
+| Masalah yang ditemukan | Jumlah baris | Cara menangani |
+|---|---:|---|
+| Duplikat baris identik | 90 | Menghapus baris yang benar-benar identik. |
+| Pengulangan ID pelanggan lainnya | 60 | Memeriksa dan mengonsolidasikan catatan berdasarkan ID agar setiap pelanggan memiliki satu baris. |
+| Nilai umur kosong | 208 | Memeriksa missing value; umur tidak digunakan sebagai fitur clustering final. |
+| Nilai rating rata-rata kosong | 812 | Memeriksa missing value; rating tidak digunakan sebagai fitur clustering final. |
+| Variasi penulisan kecamatan | 254 | Menyeragamkan kapitalisasi, spasi, dan variasi nama kecamatan. |
+
+
+### Ringkasan Hasil Pembersihan
+
+Dataset awal berisi 10.150 baris dengan 12 atribut dan 10.000 ID pelanggan unik. Audit menemukan 90 duplikat baris identik dan 60 pengulangan ID lainnya, sehingga total terdapat 150 baris tambahan berdasarkan ID pelanggan.
+
+Selain itu, ditemukan 208 nilai umur kosong, 812 nilai rating rata-rata kosong, dan 254 baris dengan variasi penulisan kecamatan.
+
+Setelah proses pembersihan dan deduplikasi, dataset akhir terdiri atas 10.000 pelanggan unik. Dataset dibagi menjadi 7.000 data training, 1.500 validation, dan 1.500 holdout test.
+
+Fitur model final hanya menggunakan Recency, Frequency, dan Monetary (RFM). Rincian keputusan preprocessing dan implementasinya tersedia pada notebook eksperimen.
+
+
 
 **Catatan:** Jumlah kasus per kategori dapat saling tumpang tindih; totalnya tidak harus sama dengan 150. Angka pada tanda kurung siku wajib dilengkapi dari sel audit notebook sebelum pengumpulan, bukan diperkirakan.
 
