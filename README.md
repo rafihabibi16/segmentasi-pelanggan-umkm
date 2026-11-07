@@ -1,6 +1,28 @@
 
 # Segmentasi Pelanggan UMKM Menggunakan K-Means Clustering
 
+
+## Demo Aplikasi
+
+**Aplikasi Streamlit:**  
+https://segmentasi-pelanggan-umkm-rafi.streamlit.app/
+
+**Repository GitHub:**  
+https://github.com/rafihabibi16/segmentasi-pelanggan-umkm
+
+Aplikasi merupakan prototipe akademik segmentasi pelanggan UMKM bakery dan coffee shop menggunakan K-Means RFM.
+
+Fitur utama:
+- Dashboard analitik empat segmen pelanggan.
+- Visualisasi distribusi dan karakteristik RFM.
+- Eksplorasi detail segmen dan strategi promosi.
+- Prediksi segmen pelanggan baru.
+- Rekomendasi promosi berbasis profil cluster.
+- Ekspor hasil analisis dalam format CSV.
+
+Aplikasi telah diuji melalui deployment publik di Streamlit Community Cloud.
+
+
 Proyek Machine Learning untuk segmentasi pelanggan UMKM bakery dan coffee shop berdasarkan perilaku transaksi menggunakan pendekatan RFM (Recency, Frequency, Monetary).
 
 Sistem dilengkapi dashboard analitik berbasis Streamlit dan rekomendasi strategi promosi untuk setiap segmen pelanggan.
@@ -156,11 +178,58 @@ Profil segmen merupakan kecenderungan kelompok, bukan kepastian perilaku individ
 
 ## 11. Deployment
 
-URL aplikasi publik: **Belum tersedia — akan ditambahkan setelah deployment.**
+
+## 11. Deployment
+
+Aplikasi telah di-deploy menggunakan Streamlit Community Cloud.
+
+**Live Application:**  
+https://segmentasi-pelanggan-umkm-rafi.streamlit.app/
+
+Konfigurasi deployment:
+- Repository: rafihabibi16/segmentasi-pelanggan-umkm
+- Branch: main
+- Entry point: app.py
+- Framework: Streamlit
+- Model: StandardScaler + K-Means (k=4)
+
+Pengujian aplikasi publik mencakup akses halaman, dashboard Overview, eksplorasi segmen, prediksi pelanggan baru, rekomendasi promosi, dan ekspor CSV.
+
+Aplikasi menggunakan model yang sudah dilatih dan disimpan sebagai file `.joblib`, tanpa melakukan training ulang ketika digunakan.
+
 
 ## 12. Dokumentasi Eksperimen
 
-Notebook eksperimen Google Colab akan ditambahkan ke repository untuk mendukung reproduksibilitas analisis.
+
+## 12. Dokumentasi Eksperimen
+
+Notebook eksperimen Machine Learning tersedia di folder:
+
+[`notebooks/`](notebooks/)
+
+Notebook mendokumentasikan:
+1. Data understanding dan audit kualitas data.
+2. Data cleaning dan exploratory data analysis.
+3. Pembagian training, validation, dan holdout test.
+4. Feature selection RFM.
+5. Baseline K-Means untuk k=2 hingga k=8.
+6. Customer profiling dan interpretasi bisnis.
+7. Eksperimen transformasi Log1p.
+8. Eksperimen penambahan fitur promo.
+9. Evaluasi stabilitas dan sensitivitas model.
+10. Evaluasi final pada holdout test set.
+
+Model final menggunakan StandardScaler dan K-Means dengan k=4.
+
+Silhouette akhir:
+- Training (sampel 1.500): 0,5525.
+- Validation (1.500): 0,5619.
+- Holdout test (1.500): 0,5497.
+
+Untuk menjalankan ulang eksperimen, gunakan notebook dan dataset sumber yang dijelaskan pada bagian Dataset.
+
+Catatan: proses reproduksi memerlukan penyesuaian apabila terdapat path Google Drive khusus lingkungan Google Colab.
+
 
 ## 13. Informasi Tim
 
