@@ -1,236 +1,209 @@
+# Segmentasi Pelanggan UMKM Menggunakan K-Means RFM · Tim Rafi–Rafli
 
-# Segmentasi Pelanggan UMKM Menggunakan K-Means Clustering
+**Kasus:** 05 — Segmentasi Pelanggan UMKM  
+**Aplikasi:** https://segmentasi-pelanggan-umkm-rafi.streamlit.app/  
+**Video:** [Tambahkan tautan video demonstrasi setelah tersedia]  
+**Repositori:** https://github.com/rafihabibi16/segmentasi-pelanggan-umkm
 
+| **Anggota** | **NIM** | **Bagian yang dikerjakan** |
+| --- | --- | --- |
+| Rafi Ahmad Habibi | 2409956 | Data understanding, EDA, data cleaning, feature engineering RFM, dan dokumentasi eksperimen. |
+| Rafli Putra Permana | 2408471 | Pemodelan dan evaluasi K-Means, pengembangan aplikasi Streamlit, pengujian, dan deployment. |
 
-## Demo Aplikasi
+> **Catatan kontribusi:** Pembagian di atas merupakan pembagian tugas yang direncanakan. Sebelum pengumpulan, pastikan sesuai kontribusi aktual dan setiap anggota memiliki commit yang dapat ditelusuri.
 
-**Aplikasi Streamlit:**  
-https://segmentasi-pelanggan-umkm-rafi.streamlit.app/
+## Masalah dan pengguna
 
-**Repository GitHub:**  
-https://github.com/rafihabibi16/segmentasi-pelanggan-umkm
+Pengguna sistem adalah pemilik atau pengelola UMKM bakery dan coffee shop yang ingin memahami perbedaan perilaku pembelian pelanggan. Promosi yang sama untuk seluruh pelanggan belum tentu relevan karena pelanggan memiliki frekuensi transaksi, nilai belanja, dan tingkat keaktifan yang berbeda. Sistem membantu mengidentifikasi segmen pelanggan serta memberikan **usulan strategi promosi** berdasarkan karakteristik masing-masing segmen, bukan menjamin peningkatan penjualan.
 
-Aplikasi merupakan prototipe akademik segmentasi pelanggan UMKM bakery dan coffee shop menggunakan K-Means RFM.
+Aplikasi menyediakan dashboard profil segmen, prediksi cluster untuk satu pelanggan berdasarkan data RFM, rekomendasi promosi berbasis aturan bisnis, dan unduhan hasil prediksi dalam format CSV.
 
-Fitur utama:
-- Dashboard analitik empat segmen pelanggan.
-- Visualisasi distribusi dan karakteristik RFM.
-- Eksplorasi detail segmen dan strategi promosi.
-- Prediksi segmen pelanggan baru.
-- Rekomendasi promosi berbasis profil cluster.
-- Ekspor hasil analisis dalam format CSV.
+## Data dan pembersihan
 
-Aplikasi telah diuji melalui deployment publik di Streamlit Community Cloud.
+**Sumber dataset:** [Repository studi kasus resmi, Kasus 05](https://github.com/nurhikam/mkb-ml-project/tree/main/kasus/05-segmentasi-umkm) · [raw.csv](https://raw.githubusercontent.com/nurhikam/mkb-ml-project/main/kasus/05-segmentasi-umkm/data/raw.csv).
 
+Dataset bersifat **sintetis** dan merupakan ringkasan perilaku pelanggan selama enam bulan hingga Juni 2026. Data awal terdiri atas **10.150 baris dan 12 kolom**; data akhir setelah pembersihan memuat **10.000 pelanggan unik**. Selisih keseluruhan adalah **150 baris**; angka ini **bukan** jumlah masing-masing jenis kesalahan. Data akhir dibagi menjadi 7.000 baris training (70%), 1.500 validation (15%), dan 1.500 holdout test (15%).
 
-Proyek Machine Learning untuk segmentasi pelanggan UMKM bakery dan coffee shop berdasarkan perilaku transaksi menggunakan pendekatan RFM (Recency, Frequency, Monetary).
+| **Masalah yang ditemukan** | **Jumlah baris** | **Cara menangani** |
+| --- | ---: | --- |
+| Baris berlebih secara keseluruhan setelah audit dan deduplikasi/konsolidasi | **150** (selisih total) | Memeriksa duplikasi baris serta konflik `id_pelanggan`, lalu mempertahankan data pelanggan sesuai aturan pembersihan dalam notebook. |
+| Nilai kosong, terutama pada `umur` dan `rating_rata` | **[Isi hasil audit notebook]** | Memeriksa proporsi dan konteks nilai kosong; penanganan per kolom didokumentasikan dalam notebook. |
+| Format teks/penulisan nominal `total_belanja_rp` tidak seragam | **[Isi hasil audit notebook]** | Membersihkan simbol dan format rupiah lalu mengonversinya ke numerik. |
+| Label kategori tidak konsisten | **[Isi hasil audit notebook]** | Menyeragamkan label kategori sebelum analisis. |
+| Nilai tidak wajar atau ekstrem pada fitur numerik/recency | **[Isi hasil audit notebook]** | Memvalidasi nilai dan meninjau outlier dalam konteks bisnis; tidak menghapus seluruh nilai ekstrem secara otomatis. |
 
-Sistem dilengkapi dashboard analitik berbasis Streamlit dan rekomendasi strategi promosi untuk setiap segmen pelanggan.
+**Catatan:** Jumlah kasus per kategori dapat saling tumpang tindih; totalnya tidak harus sama dengan 150. Angka pada tanda kurung siku wajib dilengkapi dari sel audit notebook sebelum pengumpulan, bukan diperkirakan.
 
-> **Status:** Prototipe akademik menggunakan dataset sintetis. Rekomendasi pemasaran belum divalidasi melalui kampanye nyata.
+### Fitur model
 
-## 1. Latar Belakang
+Model final menggunakan tiga fitur **RFM (Recency, Frequency, Monetary)** berikut:
 
-UMKM yang memberikan promosi seragam kepada seluruh pelanggan berisiko menggunakan anggaran pemasaran secara kurang efisien karena perilaku pelanggan berbeda-beda.
+| Fitur | Makna |
+| --- | --- |
+| `hari_sejak_transaksi_terakhir` | Jarak hari sejak transaksi terakhir (*recency*). |
+| `jumlah_transaksi_6bln` | Jumlah transaksi dalam enam bulan (*frequency*). |
+| `total_belanja_rp` | Total nilai belanja enam bulan dalam rupiah (*monetary*). |
 
-Proyek ini menerapkan unsupervised learning untuk mengidentifikasi kelompok pelanggan berdasarkan aktivitas dan nilai belanja, kemudian menerjemahkan hasil clustering menjadi rekomendasi promosi yang dapat dipertimbangkan oleh pemilik UMKM.
+Ketiga fitur distandardisasi menggunakan `StandardScaler` sebelum K-Means agar skala nominal rupiah tidak mendominasi jarak Euclidean. Informasi penggunaan promo dan kategori produk favorit dimanfaatkan untuk **interpretasi profil** segmen; keduanya **bukan input** model final.
 
-## 2. Tujuan
+Seluruh langkah data understanding, audit kualitas, EDA, preprocessing, pemilihan fitur, eksperimen, dan evaluasi ada pada [`notebooks/TugasPraktisi_Clustering.ipynb`](notebooks/TugasPraktisi_Clustering.ipynb).
 
-- Mengidentifikasi pola perilaku pelanggan menggunakan RFM.
-- Membandingkan sejumlah konfigurasi K-Means.
-- Menghasilkan segmen pelanggan yang dapat diinterpretasikan.
-- Memberikan rekomendasi promosi berbasis profil segmen.
-- Menyediakan aplikasi web untuk analisis pelanggan baru.
+## Hasil
 
-## 3. Dataset
+### Pemodelan dan perbandingan eksperimen
 
-Dataset sintetis berasal dari studi kasus Segmentasi Pelanggan UMKM pada repositori tugas Machine Learning.
+**Baseline wajib:** `StandardScaler` + `KMeans` dengan fitur RFM, `n_clusters=4`, `random_state=42`, dan `n_init=10`. Pemilihan `k` ditinjau melalui percobaan beberapa jumlah cluster, kualitas pengelompokan (*silhouette score*), stabilitas, serta kemudahan interpretasi bisnis.
 
-Sumber:
-https://github.com/nurhikam/mkb-ml-project/tree/main/kasus/05-segmentasi-umkm
+| **Model** | **Silhouette validation** | **Silhouette test** |
+| --- | ---: | ---: |
+| **Baseline:** StandardScaler + K-Means RFM, k=4 | **0,5619** | — |
+| Eksperimen: transformasi Log1p RFM, k=4 | 0,5296 | — |
+| Eksperimen: transformasi Log1p RFM, k=5 | 0,5303 | — |
+| Eksperimen: RFM + fitur promo, k=4 | 0,5625 | — |
+| **Model final:** StandardScaler + K-Means RFM, k=4 | **0,5619** | **0,5497** |
 
-Ringkasan pengolahan:
-- Data mentah: 10.150 baris.
-- Pelanggan unik setelah deduplikasi: 10.000.
-- Training: 7.000 pelanggan (70%).
-- Validation: 1.500 pelanggan (15%).
-- Holdout test: 1.500 pelanggan (15%).
+Tanda **—** berarti model tersebut tidak dilaporkan pada holdout test; alternatif dibandingkan dalam tahap pengembangan menggunakan validation set. Model final mempertahankan baseline RFM karena sederhana, stabil, konsisten dengan masukan aplikasi, dan mudah dijelaskan kepada pemilik UMKM. Model RFM + promo memberikan silhouette validation sedikit lebih tinggi, tetapi memakai ruang fitur berbeda sehingga nilainya **tidak menjadi satu-satunya dasar** pemilihan model.
 
-Data cleaning mencakup pemeriksaan duplikasi, nilai hilang, format nominal rupiah, konsistensi kategori wilayah, dan anomali numerik.
+**Evaluasi model final:**
 
-## 4. Metodologi Machine Learning
+- Silhouette training (sampel 1.500): **0,5525**.
+- Silhouette validation (1.500): **0,5619**.
+- Silhouette holdout test (1.500): **0,5497**.
+- Stabilitas resampling, rata-rata Adjusted Rand Index (ARI): **0,9951**.
+- Seluruh eksperimen berhasil dijalankan ulang dari awal di Google Colab dengan hasil evaluasi yang sama.
 
-### Fitur Model
+Holdout test digunakan setelah keputusan model final. Eksekusi ulang notebook dilakukan untuk memeriksa reproduksibilitas, **bukan untuk memilih ulang model berdasarkan test**.
 
-| Fitur | Deskripsi |
-|---|---|
-| Recency | Hari sejak transaksi terakhir |
-| Frequency | Jumlah transaksi selama enam bulan |
-| Monetary | Total belanja enam bulan dalam rupiah |
+### Profil empat segmen pelanggan
 
-Algoritma final: **K-Means Clustering (k=4)**.
+Statistik berikut dihitung dari **7.000 data training**, bukan seluruh 10.000 data:
 
-Pipeline:
-1. StandardScaler.
-2. K-Means dengan random_state=42 dan n_init=10.
+| **Cluster** | **Nama segmen** | **Pelanggan (training)** | **Recency rata-rata (hari)** | **Transaksi rata-rata/6 bulan** | **Belanja rata-rata/6 bulan** |
+| ---: | --- | ---: | ---: | ---: | ---: |
+| 0 | Aktif Berorientasi Promo | 2.688 (38,40%) | 14,77 | 10,28 | Rp420.490 |
+| 1 | Pelanggan Kurang Aktif | 1.912 (27,31%) | 114,12 | 2,57 | Rp106.784 |
+| 2 | Pembeli Produk Acara Bernilai Tinggi | 655 (9,36%) | 30,40 | 4,66 | Rp1.408.475 |
+| 3 | Pelanggan Rutin Bernilai Tinggi | 1.745 (24,93%) | 5,20 | 30,43 | Rp1.480.720 |
 
-StandardScaler dilatih hanya menggunakan training set. Validation dan test tidak digunakan untuk fitting model.
+### Rekomendasi promosi
 
-### Eksperimen
+| **Segmen** | **Usulan promosi** | **Tujuan bisnis** |
+| --- | --- | --- |
+| Aktif Berorientasi Promo | Bundling kopi dan roti serta penawaran yang relevan. | Menjaga frekuensi transaksi dan nilai keranjang belanja. |
+| Pelanggan Kurang Aktif | Voucher reaktivasi dengan masa berlaku terbatas. | Mendorong pelanggan kembali bertransaksi. |
+| Pembeli Produk Acara Bernilai Tinggi | Penawaran pre-order, paket ulang tahun, atau produk acara. | Memfasilitasi kebutuhan pesanan bernilai besar. |
+| Pelanggan Rutin Bernilai Tinggi | Program loyalitas, reward, dan akses penawaran khusus. | Mempertahankan hubungan dengan pelanggan rutin. |
 
-Konfigurasi yang diuji:
-- Baseline RFM + StandardScaler + K-Means.
-- Log1p + StandardScaler + K-Means.
-- RFM + persentase penggunaan promo.
-- Variasi jumlah cluster k=2 hingga k=8.
-- Stabilitas terhadap perubahan inisialisasi.
-- Stabilitas melalui resampling data training.
-- Sensitivitas terhadap anomali recency.
+**Threshold yang dipakai:** **Tidak berlaku (N/A)**. K-Means adalah metode *unsupervised clustering* yang tidak menggunakan threshold probabilitas untuk menghasilkan label. Parameter jumlah kelompok yang digunakan ialah **`k=4`**, bukan threshold klasifikasi. Rekomendasi promosi bersifat *rule-based* berdasarkan label cluster dan belum divalidasi melalui A/B testing atau pengukuran peningkatan penjualan nyata.
 
-Pemilihan model mempertimbangkan silhouette, stabilitas, interpretabilitas, dan kegunaan bisnis.
+## Cara menjalankan
 
-## 5. Evaluasi Model Final
-
-| Dataset | Jumlah Pelanggan | Silhouette |
-|---|---:|---:|
-| Training (sampel evaluasi) | 1.500 | 0,5525 |
-| Validation | 1.500 | 0,5619 |
-| Holdout Test | 1.500 | 0,5497 |
-
-Model final memperoleh rata-rata ARI 0,9951 pada eksperimen resampling training.
-
-> Silhouette mengukur karakteristik pemisahan cluster, bukan akurasi klasifikasi. Evaluasi ini tidak membuktikan efektivitas promosi maupun kemampuan model menghadapi data drift.
-
-## 6. Hasil Segmentasi
-
-| Cluster | Nama Segmen | Strategi Utama |
-|---|---|---|
-| 0 | Aktif Berorientasi Promo | Bundling kopi dan roti |
-| 1 | Pelanggan Kurang Aktif | Voucher reaktivasi |
-| 2 | Pembeli Produk Acara Bernilai Tinggi | Penawaran pre-order kue dan paket snack |
-| 3 | Pelanggan Rutin Bernilai Tinggi | Reward loyalitas |
-
-Penamaan cluster didasarkan pada customer profiling training set.
-
-Penggunaan promo dan kategori favorit digunakan sebagai informasi pendukung interpretasi, bukan fitur input model final.
-
-## 7. Fitur Aplikasi
-
-Aplikasi Streamlit menyediakan:
-- Dashboard overview empat segmen.
-- Visualisasi distribusi pelanggan dan rata-rata RFM.
-- Eksplorasi profil setiap segmen.
-- Prediksi segmen satu pelanggan baru.
-- Rekomendasi promosi berbasis aturan (rule-based).
-- Ekspor hasil analisis ke CSV.
-- Validasi input dan penanganan kesalahan dasar.
-
-Aplikasi belum terhubung dengan database atau transaksi real-time.
-
-## 8. Instalasi dan Menjalankan Aplikasi
-
-Persyaratan: Python 3.13 dan file model pada folder `artifacts`.
-
-### Membuat virtual environment (Windows)
-
-    py -m venv .venv
-    .venv\Scripts\activate.bat
-
-### Menginstal dependensi
-
-    python -m pip install -r requirements.txt
-
-### Menjalankan aplikasi
-
-    python -m streamlit run app.py
-
-Buka http://localhost:8501 pada browser.
-
-### Menjalankan pengujian otomatis
-
-    python -m unittest discover -s tests -p "test_*.py" -v
-
-Model `.joblib` harus berasal dari sumber tepercaya dan menggunakan versi dependensi yang kompatibel.
-
-## 9. Contoh Penggunaan
-
-Masukkan data pelanggan:
-- Recency: 12 hari.
-- Frequency: 8 transaksi.
-- Monetary: Rp400.000.
-
-Hasil prediksi model:
-- Cluster: 0.
-- Segmen: Aktif Berorientasi Promo.
-- Strategi: Bundling dan Promo Pembelian Berulang.
-
-Profil segmen merupakan kecenderungan kelompok, bukan kepastian perilaku individu.
-
-## 10. Keterbatasan
-
-- Dataset bersifat sintetis.
-- Model dilatih menggunakan data ringkasan pelanggan, bukan transaksi real-time.
-- Pelanggan tanpa riwayat transaksi belum didukung.
-- Evaluasi menggunakan random split, bukan pengujian temporal.
-- Rekomendasi promosi belum diuji menggunakan A/B testing.
-- Efektivitas bisnis dan dampak finansial belum dapat disimpulkan.
-
-## 11. Deployment
-
-
-## 11. Deployment
-
-Aplikasi telah di-deploy menggunakan Streamlit Community Cloud.
-
-**Live Application:**  
-https://segmentasi-pelanggan-umkm-rafi.streamlit.app/
-
-Konfigurasi deployment:
-- Repository: rafihabibi16/segmentasi-pelanggan-umkm
-- Branch: main
-- Entry point: app.py
-- Framework: Streamlit
-- Model: StandardScaler + K-Means (k=4)
-
-Pengujian aplikasi publik mencakup akses halaman, dashboard Overview, eksplorasi segmen, prediksi pelanggan baru, rekomendasi promosi, dan ekspor CSV.
-
-Aplikasi menggunakan model yang sudah dilatih dan disimpan sebagai file `.joblib`, tanpa melakukan training ulang ketika digunakan.
-
-
-## 12. Dokumentasi Eksperimen
-
-
-## 12. Dokumentasi Eksperimen
-
-Notebook eksperimen Machine Learning tersedia di folder:
-
-[`notebooks/`](notebooks/)
-
-Notebook mendokumentasikan:
-1. Data understanding dan audit kualitas data.
-2. Data cleaning dan exploratory data analysis.
-3. Pembagian training, validation, dan holdout test.
-4. Feature selection RFM.
-5. Baseline K-Means untuk k=2 hingga k=8.
-6. Customer profiling dan interpretasi bisnis.
-7. Eksperimen transformasi Log1p.
-8. Eksperimen penambahan fitur promo.
-9. Evaluasi stabilitas dan sensitivitas model.
-10. Evaluasi final pada holdout test set.
-
-Model final menggunakan StandardScaler dan K-Means dengan k=4.
-
-Silhouette akhir:
-- Training (sampel 1.500): 0,5525.
-- Validation (1.500): 0,5619.
-- Holdout test (1.500): 0,5497.
-
-Untuk menjalankan ulang eksperimen, gunakan notebook dan dataset sumber yang dijelaskan pada bagian Dataset.
-
-Catatan: proses reproduksi memerlukan penyesuaian apabila terdapat path Google Drive khusus lingkungan Google Colab.
-
-
-## 13. Informasi Tim
-
-Nama anggota dan pembagian tugas akan dilengkapi sebelum pengumpulan.
+### Mengakses aplikasi online
+
+Buka **https://segmentasi-pelanggan-umkm-rafi.streamlit.app/**. Aplikasi menerima input satu pelanggan dan menampilkan label cluster, karakteristik segmen, rekomendasi promosi, serta opsi ekspor CSV.
+
+### Menjalankan secara lokal
+
+Persyaratan: Python **3.13** (versi yang digunakan saat pengembangan), Git, dan koneksi internet untuk memasang dependensi.
+
+```bash
+git clone https://github.com/rafihabibi16/segmentasi-pelanggan-umkm.git
+cd segmentasi-pelanggan-umkm
+python -m venv .venv
+```
+
+Aktivasi virtual environment **Windows CMD**:
+
+```cmd
+.venv\Scripts\activate
+```
+
+Untuk Linux/macOS, gunakan `source .venv/bin/activate`.
+
+Pasang dependensi dan jalankan aplikasi:
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+Proyek ini menggunakan **Streamlit tanpa FastAPI**, sehingga tidak memerlukan `uvicorn` dan tidak mempunyai entry point `app/api/main.py`.
+
+### Menjalankan pengujian
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+Pengujian unit mencakup validasi input, inferensi cluster, serta respons layanan. Selain itu, enam fungsi utama aplikasi publik telah diuji secara manual: akses halaman, Overview, eksplorasi segmen, prediksi, rekomendasi promo, dan ekspor CSV.
+
+### Menjalankan ulang notebook
+
+1. Buka [`notebooks/TugasPraktisi_Clustering.ipynb`](notebooks/TugasPraktisi_Clustering.ipynb) di Google Colab.
+2. Pilih **Runtime → Restart session**, kemudian **Runtime → Run all**.
+3. Notebook membaca data mentah dari URL GitHub sumber.
+4. Hasil reproduksi disimpan di `repro_outputs/data/cleaned_customers.csv`, `repro_outputs/artifacts/kmeans_rfm_v1.joblib`, dan `repro_outputs/artifacts/cluster_metadata.json` relatif terhadap direktori kerja notebook.
+
+Model hasil reproduksi tidak perlu menggantikan `artifacts/kmeans_rfm_v1.joblib` yang dipakai aplikasi. Notebook telah diuji ulang dan menghasilkan metrik evaluasi yang konsisten.
+
+## Struktur repositori
+
+```text
+segmentasi-pelanggan-umkm/
+├── .streamlit/
+│   └── config.toml                 # Tema aplikasi
+├── artifacts/
+│   ├── cluster_metadata.json       # Versi model, fitur, dan metrik
+│   ├── cluster_profiles.json       # Profil statistik empat segmen
+│   └── kmeans_rfm_v1.joblib        # Pipeline StandardScaler + K-Means
+├── notebooks/
+│   └── TugasPraktisi_Clustering.ipynb  # EDA hingga evaluasi dan ekspor model
+├── src/
+│   ├── __init__.py
+│   ├── dashboard.py                # Visualisasi dashboard
+│   ├── features.py                 # Validasi dan pembuatan fitur RFM saat inferensi
+│   ├── predict.py                  # Pemuatan model dan prediksi cluster
+│   ├── recommendations.py          # Aturan rekomendasi per cluster
+│   └── service.py                  # Integrasi hasil prediksi dan rekomendasi
+├── tests/
+│   └── test_service.py             # Unit test layanan
+├── .gitignore
+├── app.py                          # Entry point Streamlit
+├── README.md
+├── requirements.txt
+└── test_prediction.py              # Pengujian prediksi sederhana
+```
+
+**Catatan implementasi:** Notebook menggunakan tiga fitur RFM dengan nama dan urutan yang sama dengan proses inferensi; `src/features.py` saat ini dipakai untuk penyiapan input prediksi aplikasi. Pemakaian fungsi yang persis sama secara langsung di notebook training perlu dipastikan bila dosen mensyaratkan satu modul bersama untuk training dan inferensi.
+
+Dataset sumber dibaca langsung dari GitHub. Karena itu, folder `data/` atau `app/` pada contoh template dosen **tidak dipaksakan** apabila tidak sesuai struktur implementasi aktual.
+
+## Keterbatasan
+
+1. **Data sintetis:** hasil tidak dapat langsung digeneralisasi ke seluruh UMKM atau digunakan sebagai bukti efektivitas promosi pada bisnis nyata.
+2. **Fitur terbatas:** model hanya menggunakan Recency, Frequency, dan Monetary; preferensi produk, penggunaan promo, margin, dan faktor musiman tidak dimasukkan sebagai input model final.
+3. **Kualitas input:** prediksi bisa kurang representatif jika data RFM keliru, tidak lengkap, berada jauh di luar pola training, atau definisi periode transaksinya berbeda.
+4. **Perubahan perilaku pelanggan:** model perlu dievaluasi ulang ketika profil transaksi berubah; hasil clustering tidak otomatis tetap relevan sepanjang waktu.
+5. **Belum ada uji dampak promosi:** rekomendasi didasarkan pada interpretasi cluster, bukan hasil uji A/B, pengukuran konversi, atau peningkatan pendapatan yang telah terbukti.
+6. **Bukan sistem CRM produksi:** aplikasi merupakan prototipe akademik; belum mencakup integrasi transaksi real-time, otentikasi pengguna, atau pemantauan model otomatis.
+
+## Daftar periksa sebelum dikumpulkan
+
+- [x] Repositori GitHub bersifat publik.
+- [ ] **Setiap anggota memiliki commit** yang dapat ditelusuri sesuai kontribusinya.
+- [x] Notebook berhasil dijalankan ulang dari awal sampai akhir tanpa galat.
+- [x] Baseline K-Means dilaporkan dan dibandingkan dengan eksperimen improvement.
+- [x] Holdout test digunakan untuk evaluasi final setelah model dipilih, bukan untuk optimasi model.
+- [x] `artifacts/cluster_metadata.json` memuat versi model, fitur masukan, dan metrik; threshold ditandai tidak berlaku untuk K-Means.
+- [x] Aplikasi publik dapat diakses dan enam fungsi utamanya telah diuji.
+- [x] Tersedia validasi input yang tidak wajar serta pengujian unit layanan.
+- [ ] Aplikasi diverifikasi secara khusus melalui browser ponsel.
+- [ ] Jumlah baris tiap jenis masalah data cleaning dilengkapi dari notebook.
+- [ ] Laporan akhir maksimal **6 halaman** telah diselesaikan.
+- [ ] Video demonstrasi maksimal **5 menit** telah diselesaikan dan tautannya ditambahkan.
+
+---
+
+**Aplikasi:** https://segmentasi-pelanggan-umkm-rafi.streamlit.app/  
+**Repository:** https://github.com/rafihabibi16/segmentasi-pelanggan-umkm  
+**Sumber studi kasus:** https://github.com/nurhikam/mkb-ml-project/tree/main/kasus/05-segmentasi-umkm
