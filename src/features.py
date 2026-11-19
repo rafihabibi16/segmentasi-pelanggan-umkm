@@ -18,6 +18,21 @@ FEATURES_RFM = [
 
 def prepare_rfm_features(customer, feature_order):
     """
+    Siapkan satu baris data RFM untuk prediksi segmen pelanggan.
+
+    customer adalah dictionary dengan tiga nilai:
+    - hari_sejak_transaksi_terakhir: bilangan bulat >= 0 (0 berarti hari ini).
+    - jumlah_transaksi_6bln: bilangan bulat >= 1 dalam enam bulan terakhir.
+    - total_belanja_rp: total belanja dalam rupiah, harus lebih dari 0.
+
+    feature_order harus sama persis dengan urutan pada FEATURES_RFM.
+    Fungsi mengembalikan DataFrame satu baris bertipe float64 dalam
+    urutan tersebut. Nilainya masih dalam satuan asli karena scaling
+    dilakukan oleh pipeline model saat prediksi.
+
+    Jika data pelanggan atau urutan fitur tidak valid, fungsi memunculkan
+    ValueError.
+    """
     Menyiapkan data satu pelanggan untuk model K-Means.
 
     Scaling tidak dilakukan di sini karena StandardScaler
