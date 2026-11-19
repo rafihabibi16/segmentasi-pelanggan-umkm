@@ -190,12 +190,18 @@ if submitted:
 
     try:
         result = segment_customer(customer)
-
+        
+     # Simpan input bersama hasilnya agar ringkasan dan CSV merujuk
+     # pada pelanggan yang sama saat halaman ditampilkan kembali.
+        
         st.session_state["result"] = result
         st.session_state["customer"] = customer
 
     except (ValueError, KeyError, FileNotFoundError) as error:
-
+        
+     # Hapus hasil sebelumnya agar prediksi lama tidak ditampilkan
+     # atau diunduh ketika analisis pelanggan baru gagal.
+        
         st.session_state.pop("result", None)
         st.session_state.pop("customer", None)
 
