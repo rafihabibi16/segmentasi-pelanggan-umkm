@@ -204,17 +204,17 @@ Dataset sumber dibaca langsung dari GitHub. Karena itu, folder `data/` atau `app
 ## Daftar periksa sebelum dikumpulkan
 
 - [x] Repositori GitHub bersifat publik.
-- [ ] **Setiap anggota memiliki commit** yang dapat ditelusuri sesuai kontribusinya.
+- [x] **Setiap anggota memiliki commit** yang dapat ditelusuri sesuai kontribusinya.
 - [x] Notebook berhasil dijalankan ulang dari awal sampai akhir tanpa galat.
 - [x] Baseline K-Means dilaporkan dan dibandingkan dengan eksperimen improvement.
 - [x] Holdout test digunakan untuk evaluasi final setelah model dipilih, bukan untuk optimasi model.
 - [x] `artifacts/cluster_metadata.json` memuat versi model, fitur masukan, dan metrik; threshold ditandai tidak berlaku untuk K-Means.
 - [x] Aplikasi publik dapat diakses dan enam fungsi utamanya telah diuji.
 - [x] Tersedia validasi input yang tidak wajar serta pengujian unit layanan.
-- [ ] Aplikasi diverifikasi secara khusus melalui browser ponsel.
-- [ ] Jumlah baris tiap jenis masalah data cleaning dilengkapi dari notebook.
-- [ ] Laporan akhir maksimal **6 halaman** telah diselesaikan.
-- [ ] Video demonstrasi maksimal **5 menit** telah diselesaikan dan tautannya ditambahkan.
+- [x] Aplikasi diverifikasi secara khusus melalui browser ponsel.
+- [x] Jumlah baris tiap jenis masalah data cleaning dilengkapi dari notebook.
+- [x] Laporan akhir maksimal **6 halaman** telah diselesaikan.
+- [] Video demonstrasi maksimal **5 menit** telah diselesaikan dan tautannya ditambahkan.
 
 ---
 
