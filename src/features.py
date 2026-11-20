@@ -33,6 +33,7 @@ def prepare_rfm_features(customer, feature_order):
     Jika data pelanggan atau urutan fitur tidak valid, fungsi memunculkan
     ValueError.
     """
+    """
     Menyiapkan data satu pelanggan untuk model K-Means.
 
     Scaling tidak dilakukan di sini karena StandardScaler
