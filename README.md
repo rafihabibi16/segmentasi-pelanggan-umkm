@@ -201,21 +201,6 @@ Dataset sumber dibaca langsung dari GitHub. Karena itu, folder `data/` atau `app
 5. **Belum ada uji dampak promosi:** rekomendasi didasarkan pada interpretasi cluster, bukan hasil uji A/B, pengukuran konversi, atau peningkatan pendapatan yang telah terbukti.
 6. **Bukan sistem CRM produksi:** aplikasi merupakan prototipe akademik; belum mencakup integrasi transaksi real-time, otentikasi pengguna, atau pemantauan model otomatis.
 
-## Daftar periksa sebelum dikumpulkan
-
-- [x] Repositori GitHub bersifat publik.
-- [x] **Setiap anggota memiliki commit** yang dapat ditelusuri sesuai kontribusinya.
-- [x] Notebook berhasil dijalankan ulang dari awal sampai akhir tanpa galat.
-- [x] Baseline K-Means dilaporkan dan dibandingkan dengan eksperimen improvement.
-- [x] Holdout test digunakan untuk evaluasi final setelah model dipilih, bukan untuk optimasi model.
-- [x] `artifacts/cluster_metadata.json` memuat versi model, fitur masukan, dan metrik; threshold ditandai tidak berlaku untuk K-Means.
-- [x] Aplikasi publik dapat diakses dan enam fungsi utamanya telah diuji.
-- [x] Tersedia validasi input yang tidak wajar serta pengujian unit layanan.
-- [x] Aplikasi diverifikasi secara khusus melalui browser ponsel.
-- [x] Jumlah baris tiap jenis masalah data cleaning dilengkapi dari notebook.
-- [x] Laporan akhir maksimal **6 halaman** telah diselesaikan.
-- [] Video demonstrasi maksimal **5 menit** telah diselesaikan dan tautannya ditambahkan.
-
 ---
 
 **Aplikasi:** https://segmentasi-pelanggan-umkm-rafi.streamlit.app/  
